@@ -1,0 +1,20 @@
+# dependências e build
+/node_modules
+/dist
+/coverage
+*.tsbuildinfo
+
+# variáveis de ambiente (o .env.example vai para o git)
+.env
+.env.*
+!.env.example
+
+# editor / sistema
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.log
+
+# arquivo que o nest new cria para assistentes de código
+AGENTS.md

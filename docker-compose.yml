@@ -1,0 +1,45 @@
+# Sobe banco, Redis e a API. Para desenvolver só com o banco e o Redis:
+#   docker compose up -d db redis
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: chamados
+      POSTGRES_PASSWORD: chamados
+      POSTGRES_DB: chamados
+    ports:
+      - "5434:5432"
+    volumes:
+      - dados-db:/var/lib/postgresql/data
+      - ./docker/criar-banco-teste.sql:/docker-entrypoint-initdb.d/criar-banco-teste.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chamados"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgres://chamados:chamados@db:5432/chamados
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: troque-isto-por-um-segredo-de-verdade-com-32-caracteres
+      RODAR_MIGRATIONS: "true"
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  dados-db:
